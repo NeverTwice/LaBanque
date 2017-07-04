@@ -10,7 +10,7 @@
 
 ## Fonctionnalités
 
-### Développé :
+### Développé : 
 
 
 ### En développement :

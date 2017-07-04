@@ -26,7 +26,7 @@ Projet réalisé dans le cadre des études à l'ESGI
 [Retour au sommaire](#sommaire)
 ## Requires
 
-* SQL Light
+* SQLite
 
 [Retour au sommaire](#sommaire)
 ## Installation

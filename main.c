@@ -9,9 +9,9 @@ struct configuration {
     char* db_name;
     char* devise;
 } config_default = {
-    "labanque.db",
+    "/Users/YANN/Desktop/LaBanque/labanque.db",
     "euros"
-
+    
 };
 
 typedef struct configuration Config;
@@ -30,37 +30,76 @@ char* convertToLower(char *newString) {
     return newString;
 }
 
+int checkIfClientExist(Config getConfig, sqlite3 *db, int id_client) {
+    sqlite3_stmt *res;
+    int i = 0;
+    
+    int rc = sqlite3_open(getConfig.db_name, &db);
+    
+    if (rc != SQLITE_OK) {
+        
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        
+        return 1;
+    }
+    
+    char *sql = "SELECT * FROM client WHERE id = @id";
+    
+    rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
+    
+    if (rc == SQLITE_OK) {
+        int id_default = sqlite3_bind_parameter_index(res, "@id");
+        sqlite3_bind_int(res, id_default, id_client);
+    } else {
+        fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+    int step = sqlite3_step(res);
+    
+    if(step == SQLITE_DONE) {
+        return 2;
+    }
+    
+    if (step == SQLITE_ROW) {
+        return 1;
+    }
+    sqlite3_finalize(res);
+    sqlite3_close(db);
+    return 0;
+
+}
+
 
 int displaySumAmount(Config getConfig, sqlite3 *db) {
     //char *err_msg = 0;
     sqlite3_stmt *res;
     int i = 0;
-
+    
     int rc = sqlite3_open(getConfig.db_name, &db);
-
+    
     if (rc != SQLITE_OK) {
-
+        
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-
+        
         return 1;
     }
-
+    
     char *sql = "SELECT SUM(solde) FROM compte";
-
+    
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
-
+    
     if (rc != SQLITE_OK) {
-
+        
         fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
     }
     int step = sqlite3_step(res);
-
+    
     if (step == SQLITE_ROW) {
         for(i = 0; i< sqlite3_column_count(res); i++) {
-             printf("The total sum of all accounts is : %s %s \n", sqlite3_column_text(res, i), getConfig.devise);
+            printf("The total sum of all accounts is : %s %s \n", sqlite3_column_text(res, i), getConfig.devise);
         }
-
+        
     }
     sqlite3_finalize(res);
     sqlite3_close(db);
@@ -72,21 +111,21 @@ int displayAccountByClientName(Config getConfig, sqlite3 *db, char *prenom, char
     sqlite3_stmt *res;
     int i = 1;
     int choice;
-
+    
     int rc = sqlite3_open(getConfig.db_name, &db);
-
+    
     if (rc != SQLITE_OK) {
-
+        
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-
+        
         return 1;
     }
-
+    
     char *sql = "SELECT compte.*, client.prenom, client.nom FROM client, compte WHERE client.id = compte.id_client AND UPPER(client.prenom) = UPPER(@prenom) AND UPPER(client.nom) = UPPER(@nom)";
-
+    
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
-
+    
     if (rc == SQLITE_OK) {
         int id_default = sqlite3_bind_parameter_index(res, "@prenom");
         sqlite3_bind_text(res, id_default, prenom, -1, SQLITE_TRANSIENT);
@@ -95,14 +134,16 @@ int displayAccountByClientName(Config getConfig, sqlite3 *db, char *prenom, char
     } else {
         fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
     }
-
+    
+   
     printf("\n\nFirstname : %s , Lastname : %s \n\n", prenom, nom);
     printf("# | ID | SOLDE | TAUX \n\n");
     while ( (rc = sqlite3_step(res)) == SQLITE_ROW) {
-        printf("%d | %s |  %s %s |  %s pourcent(s) \n",i, sqlite3_column_text(res, 0), sqlite3_column_text(res, 1), getConfig.devise, sqlite3_column_text(res, 3));
+                printf("%d | %s |  %s %s |  %s pourcent(s) \n",i, sqlite3_column_text(res, 0), sqlite3_column_text(res, 1), getConfig.devise, sqlite3_column_text(res, 3));
         i++;
-    }
 
+    }
+    
     sqlite3_finalize(res);
     sqlite3_close(db);
     return 0;
@@ -112,29 +153,29 @@ int displayAmountByAccountType(Config getConfig, sqlite3 *db, int id) {
     //char *err_msg = 0;
     sqlite3_stmt *res;
     int i;
-
+    
     int rc = sqlite3_open(getConfig.db_name, &db);
-
+    
     if (rc != SQLITE_OK) {
-
+        
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-
+        
         return 1;
     }
-
+    
     char *sql = "SELECT compte.*, client.prenom, client.nom FROM client, compte WHERE client.id = compte.id_client AND compte.id = @id";
-
+    
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
-
+    
     if (rc == SQLITE_OK) {
         int id_default = sqlite3_bind_parameter_index(res, "@id");
         sqlite3_bind_int(res, id_default, id);
     } else {
         fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
     }
-
-
+    
+    
     int step = sqlite3_step(res);
     if(step == SQLITE_DONE) {
         printf("/!\ No id has been associated.\n");
@@ -144,7 +185,7 @@ int displayAmountByAccountType(Config getConfig, sqlite3 *db, int id) {
         printf("ID |      SOLDE       | TAUX \n\n");
         printf("%s |      %s %s  |  %s pourcent(s) \n", sqlite3_column_text(res, 0), sqlite3_column_text(res, 1), getConfig.devise, sqlite3_column_text(res, 4));
     }
-
+    
     sqlite3_finalize(res);
     sqlite3_close(db);
     return 0;
@@ -167,9 +208,9 @@ void adminMenu() {
         scanf("%d", &choice);
         switch (choice) {
             case 1:
-                 printf("--------------- DISPLAY SUM OF AMOUNTS FOR ALL ACCOUNTS ------------------------\n");
+                printf("--------------- DISPLAY SUM OF AMOUNTS FOR ALL ACCOUNTS ------------------------\n");
                 displaySumAmount(getConfig, db);
-                 printf("\n---------------------------------------\n");
+                printf("\n---------------------------------------\n");
                 break;
             case 2:
                 printf("-----------------  VIEW AMOUNT BY ACCOUNT TYPE  ----------------------\n\n");
@@ -179,23 +220,23 @@ void adminMenu() {
                 printf("\n---------------------------------------\n");
                 break;
             case 3:
-
+                
                 break;
             case 4:
-
+                
                 break;
             case 5:
-
+                
                 break;
             case 6:
                 menu();
                 break;
-
+                
             default:
                 break;
-
+                
         }
-
+        
     } while(choice != 6);
 }
 
@@ -210,27 +251,27 @@ void admin(char *pseudo) {
 int logIn(Config getConfig, sqlite3 *db, char *name, char *password) {
     //char *err_msg = 0;
     sqlite3_stmt *res;
-
+    
     int rc = sqlite3_open(getConfig.db_name, &db);
-
+    
     if (rc != SQLITE_OK) {
-
+        
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-
+        
         return 1;
     }
-
+    
     char *sql = "SELECT * FROM client, admin WHERE LOWER(client.prenom) = LOWER(@name) AND client.id = admin.id_client";
-
+    
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
-
+    
     if (rc == SQLITE_OK) {
         int id_default = sqlite3_bind_parameter_index(res, "@name");
-
+        
         sqlite3_bind_text(res, id_default, name, -1, SQLITE_TRANSIENT);
     } else {
-
+        
         fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
     }
     int step = sqlite3_step(res);
@@ -250,7 +291,7 @@ int logIn(Config getConfig, sqlite3 *db, char *name, char *password) {
 }
 
 void loginAdmin() {
-
+    
     sqlite3 *db;
     Config getConfig = config_default;
     char name[255];
@@ -275,7 +316,7 @@ void loginAdmin() {
                 break;
             }
         }
-
+        
     }
 }
 
@@ -283,36 +324,36 @@ int newAccount(Config getConfig, sqlite3 *db, int id, float solde, int day, floa
     //char *err_msg = 0;
     sqlite3_stmt *res;
     int i;
-
+    
     int rc = sqlite3_open(getConfig.db_name, &db);
-
+    
     if (rc != SQLITE_OK) {
-
+        
         fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
         sqlite3_close(db);
-
+        
         return 1;
     }
-
-    char *sql = "INSERT INTO compte(solde, duree_minimale, taux, id_client) VALUES(@solde,@duree_minimale,@taux,@id_client)";
-
+    
+    char *sql = "INSERT INTO compte(id, solde, duree_minimale, taux, id_client) VALUES(@id, @solde,@duree_minimale,@taux,@id_client)";
+    
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
-
+    
     if (rc == SQLITE_OK) {
         int id_default = sqlite3_bind_parameter_index(res, "@id");
         sqlite3_bind_int(res, id_default, id);
+        int id_default_2 = sqlite3_bind_parameter_index(res, "@solde");
+        sqlite3_bind_int(res, id_default_2, solde);
+        int id_default_3 = sqlite3_bind_parameter_index(res, "@duree_minimale");
+        sqlite3_bind_int(res, id_default_3, day);
+        int id_default_4 = sqlite3_bind_parameter_index(res, "@taux");
+        sqlite3_bind_int(res, id_default_4, taux);
+        int id_default_5 = sqlite3_bind_parameter_index(res, "@id_client");
+        sqlite3_bind_int(res, id_default_5, id_client);
     } else {
         fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
     }
-
-
-    int step = sqlite3_step(res);
-    if(step == SQLITE_DONE) {
-        printf("/!\ No id has been associated.\n");
-    }
-    if (step == SQLITE_ROW) {
-
-    }
+    
 
     sqlite3_finalize(res);
     sqlite3_close(db);
@@ -320,40 +361,78 @@ int newAccount(Config getConfig, sqlite3 *db, int id, float solde, int day, floa
 }
 
 void accountManagement(){
-int choice;
+    sqlite3 *db;
+    Config getConfig = config_default;
+    
+    int choice;
+    int id;
+    float solde;
+    int day;
+    float taux;
+    int id_client;
+    int getIfExist = 0;
+    char prenom[255];
+    char nom[255];
     do {
         printf("-----------------/ MY BANQUE - Account management /-----------------\n\n");
-        printf("1 --- New client \n");
+        printf("1 --- New account \n");
         printf("2 --- Consultation \n");
         printf("3 --- Close account \n");
         printf("6 --- Back to the main menu ---- \n\n");
         printf("Please choose : ");
         scanf("%d", &choice);
-
+        
         switch (choice) {
             case 1:
-                printf("cc");
+                do {
+                    printf("Please enter the identifiant : ");
+                    scanf("%d", &id);
+                    printf("Please enter the consumer ID : ");
+                    scanf("%d", &id_client);
+                    printf("Please enter the solde : ");
+                    scanf("%f", &solde);
+                    printf("Please enter the taux : ");
+                    scanf("%f", &taux);
+                    printf("Please enter the duration : ");
+                    scanf("%d", &day);
+                    getIfExist = checkIfClientExist(getConfig, db, id_client);
+                    if(getIfExist != 2) {
+                        printf("\n---------------------------------------\n");
+                        printf("\n/! ID exist into database.\n");
+                        printf("\n---------------------------------------\n");
+                    }
+                } while (getIfExist != 2);
+                printf("\n---------------------------------------\n");
+                printf("\nThe account has been created successfuly\n");
+                printf("\n---------------------------------------\n");
+                newAccount(getConfig, db, id, solde, day, taux, id_client);
                 break;
             case 2:
-
+                printf("Please enter firstname : ");
+                scanf("%s", prenom);
+                printf("Please enter lastname : ");
+                scanf("%s", nom);
+                printf("\n---------------------------------------\n");
+                displayAccountByClientName(getConfig, db, prenom, nom);
+                printf("\n---------------------------------------\n");
                 break;
             case 3:
-
+                
                 break;
             case 6:
                 menu();
                 break;
-
+                
             default:
                 break;
-
+                
         }
     } while(choice != 6);
 }
 
 
 void menu() {
-
+    
     int choice;
     do {
         printf("-----------------/ MY BANQUE /-----------------\n\n");
@@ -365,19 +444,19 @@ void menu() {
         printf("6 --- Exit the program\n\n");
         printf("Please choose : ");
         scanf("%d", &choice);
-
+        
         switch (choice) {
             case 1:
-
+                
                 break;
             case 2:
                 accountManagement();
                 break;
             case 3:
-
+                
                 break;
             case 4:
-
+                
                 break;
             case 5:
                 loginAdmin();
@@ -385,22 +464,23 @@ void menu() {
             case 6:
                 exit(0);
                 break;
-
+                
             default:
                 break;
-
+                
         }
     } while(choice != 6);
-
+    
 }
 
 int main(int argc, char* argv[]) {
     sqlite3 *db;
     int rc;
     Config getConfig = config_default;
-
+    
+    
     rc = sqlite3_open(getConfig.db_name, &db);
-
+    
     if( rc ) {
         fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
         return(0);
@@ -408,6 +488,7 @@ int main(int argc, char* argv[]) {
         menu();
     }
     sqlite3_close(db);
-
+    
+    
     return 0;
 }

@@ -161,7 +161,7 @@ void adminMenu() {
         printf("3 --- Display the total amount of interest and by type of account to be paid by the bank at the end of the year \n");
         printf("4 --- Export application data \n");
         printf("5 --- Import application data \n");
-        printf("6 --- Back to main menu ---\n\n");
+        printf("6 --- Back to the main menu ---\n\n");
         printf("Please choose : ");
         scanf("%d", &choice);
         switch (choice) {

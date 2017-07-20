@@ -69,6 +69,44 @@ int checkIfClientExist(Config getConfig, sqlite3 *db, int id_client) {
 
 }
 
+int checkIfAccoutExist(Config getConfig, sqlite3 *db, int id_account) {
+    sqlite3_stmt *res;
+    int i = 0;
+    
+    int rc = sqlite3_open(getConfig.db_name, &db);
+    
+    if (rc != SQLITE_OK) {
+        
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        
+        return 1;
+    }
+    
+    char *sql = "SELECT * FROM compte WHERE id = @id";
+    
+    rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
+    
+    if (rc == SQLITE_OK) {
+        int id_default = sqlite3_bind_parameter_index(res, "@id");
+        sqlite3_bind_int(res, id_default, id_account);
+    } else {
+        fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+    int step = sqlite3_step(res);
+    
+    if(step == SQLITE_DONE) {
+        return 2;
+    }
+    
+    if (step == SQLITE_ROW) {
+        return 1;
+    }
+    sqlite3_finalize(res);
+    sqlite3_close(db);
+    return 0;
+    
+}
 
 int displaySumAmount(Config getConfig, sqlite3 *db) {
     //char *err_msg = 0;
@@ -353,12 +391,48 @@ int newAccount(Config getConfig, sqlite3 *db, int id, float solde, int day, floa
     } else {
         fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
     }
-    
+    int step = sqlite3_step(res);
+
+    if (step == SQLITE_ROW) {
+     
+    }
 
     sqlite3_finalize(res);
     sqlite3_close(db);
     return 0;
 }
+
+int deleteAccount(Config getConfig, sqlite3 *db, int id_account) {
+    //char *err_msg = 0;
+    sqlite3_stmt *res;
+    int i;
+    
+    int rc = sqlite3_open(getConfig.db_name, &db);
+    
+    if (rc != SQLITE_OK) {
+        
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+        
+        return 1;
+    }
+    
+    char *sql = "DELETE FROM compte WHERE id = @id";
+    
+    rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
+    
+    if (rc == SQLITE_OK) {
+        int id_default = sqlite3_bind_parameter_index(res, "@id");
+        sqlite3_bind_int(res, id_default, id_account);
+    } else {
+        fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+  
+    sqlite3_finalize(res);
+    sqlite3_close(db);
+    return 0;
+}
+
 
 void accountManagement(){
     sqlite3 *db;
@@ -371,8 +445,10 @@ void accountManagement(){
     float taux;
     int id_client;
     int getIfExist = 0;
+    int getIfExist2 = 0;
     char prenom[255];
     char nom[255];
+    int id_account;
     do {
         printf("-----------------/ MY BANQUE - Account management /-----------------\n\n");
         printf("1 --- New account \n");
@@ -398,7 +474,7 @@ void accountManagement(){
                     getIfExist = checkIfClientExist(getConfig, db, id_client);
                     if(getIfExist != 2) {
                         printf("\n---------------------------------------\n");
-                        printf("\n/! ID exist into database.\n");
+                        printf("\n/! ID does not exist into database.\n");
                         printf("\n---------------------------------------\n");
                     }
                 } while (getIfExist != 2);
@@ -417,7 +493,19 @@ void accountManagement(){
                 printf("\n---------------------------------------\n");
                 break;
             case 3:
+            
                 
+         
+                printf("Enter the id of the account for delete : ");
+                scanf("%d", &id_account);
+               
+                    deleteAccount(getConfig, db, id_account);
+                    printf("\n---------------------------------------\n");
+                    printf("\nThe account has been deleted successfuly\n");
+                    printf("\n---------------------------------------\n");
+                   
+                
+               
                 break;
             case 6:
                 menu();
@@ -478,6 +566,7 @@ int main(int argc, char* argv[]) {
     int rc;
     Config getConfig = config_default;
     
+
     
     rc = sqlite3_open(getConfig.db_name, &db);
     

@@ -19,6 +19,7 @@ typedef struct configuration Config;
 void adminMenu();
 void admin(char *pseudo);
 void loginAdmin();
+void accountManagement();
 void menu();
 
 char* convertToLower(char *newString) {
@@ -278,6 +279,79 @@ void loginAdmin() {
     }
 }
 
+int newAccount(Config getConfig, sqlite3 *db, int id, float solde, int day, float taux, int id_client) {
+    //char *err_msg = 0;
+    sqlite3_stmt *res;
+    int i;
+
+    int rc = sqlite3_open(getConfig.db_name, &db);
+
+    if (rc != SQLITE_OK) {
+
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+
+        return 1;
+    }
+
+    char *sql = "INSERT INTO compte(solde, duree_minimale, taux, id_client) VALUES(@solde,@duree_minimale,@taux,@id_client)";
+
+    rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
+
+    if (rc == SQLITE_OK) {
+        int id_default = sqlite3_bind_parameter_index(res, "@id");
+        sqlite3_bind_int(res, id_default, id);
+    } else {
+        fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+    }
+
+
+    int step = sqlite3_step(res);
+    if(step == SQLITE_DONE) {
+        printf("/!\ No id has been associated.\n");
+    }
+    if (step == SQLITE_ROW) {
+
+    }
+
+    sqlite3_finalize(res);
+    sqlite3_close(db);
+    return 0;
+}
+
+void accountManagement(){
+int choice;
+    do {
+        printf("-----------------/ MY BANQUE - Account management /-----------------\n\n");
+        printf("1 --- New client \n");
+        printf("2 --- Consultation \n");
+        printf("3 --- Close account \n");
+        printf("6 --- Back to the main menu ---- \n\n");
+        printf("Please choose : ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("cc");
+                break;
+            case 2:
+
+                break;
+            case 3:
+
+                break;
+            case 6:
+                menu();
+                break;
+
+            default:
+                break;
+
+        }
+    } while(choice != 6);
+}
+
+
 void menu() {
 
     int choice;
@@ -297,7 +371,7 @@ void menu() {
 
                 break;
             case 2:
-
+                accountManagement();
                 break;
             case 3:
 

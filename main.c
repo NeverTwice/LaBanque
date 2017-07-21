@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #include "sqlite3.h"
 
 
@@ -235,7 +236,15 @@ void adminMenu() {
     Config getConfig = config_default;
     int choice;
     int id;
-    do {
+    
+    int end;
+    
+    end = 0;
+    while(!end)
+    {
+        int choice;
+        
+        /* affichage menu */
         printf("1 --- Display the sum of the amounts for all accounts \n");
         printf("2 --- View amount by account type \n");
         printf("3 --- Display the total amount of interest and by type of account to be paid by the bank at the end of the year \n");
@@ -243,39 +252,46 @@ void adminMenu() {
         printf("5 --- Import application data \n");
         printf("6 --- Back to the main menu ---\n\n");
         printf("Please choose : ");
-        scanf("%d", &choice);
+        
+        choice = getchar();
+        
+        if(choice != '\n' && choice != EOF)
+        {
+            int d;
+            while((d = getchar()) != '\n' && d != EOF);
+        }
+
         switch (choice) {
-            case 1:
+            case '1':
                 printf("--------------- DISPLAY SUM OF AMOUNTS FOR ALL ACCOUNTS ------------------------\n");
                 displaySumAmount(getConfig, db);
                 printf("\n---------------------------------------\n");
                 break;
-            case 2:
+            case '2':
                 printf("-----------------  VIEW AMOUNT BY ACCOUNT TYPE  ----------------------\n\n");
                 printf("Please enter an account identifiant : ");
                 scanf("%d", &id);
                 displayAmountByAccountType(getConfig, db, id);
                 printf("\n---------------------------------------\n");
                 break;
-            case 3:
+            case '3':
                 
                 break;
-            case 4:
+            case '4':
                 
                 break;
-            case 5:
+            case '5':
                 
                 break;
-            case 6:
+            case '6':
                 menu();
                 break;
-                
             default:
-                break;
+                printf("==== /! Error choice ====\n");;
                 
         }
         
-    } while(choice != 6);
+    }
 }
 
 
@@ -361,7 +377,6 @@ void loginAdmin() {
 int newAccount(Config getConfig, sqlite3 *db, int id, float solde, int day, float taux, int id_client) {
     //char *err_msg = 0;
     sqlite3_stmt *res;
-    int i;
     
     int rc = sqlite3_open(getConfig.db_name, &db);
     
@@ -391,10 +406,11 @@ int newAccount(Config getConfig, sqlite3 *db, int id, float solde, int day, floa
     } else {
         fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
     }
+    
     int step = sqlite3_step(res);
-
-    if (step == SQLITE_ROW) {
-     
+    
+    if(step == SQLITE_ROW) {
+        
     }
 
     sqlite3_finalize(res);
@@ -405,7 +421,6 @@ int newAccount(Config getConfig, sqlite3 *db, int id, float solde, int day, floa
 int deleteAccount(Config getConfig, sqlite3 *db, int id_account) {
     //char *err_msg = 0;
     sqlite3_stmt *res;
-    int i;
     
     int rc = sqlite3_open(getConfig.db_name, &db);
     
@@ -427,7 +442,12 @@ int deleteAccount(Config getConfig, sqlite3 *db, int id_account) {
     } else {
         fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
     }
-  
+    
+    int step = sqlite3_step(res);
+    
+    if(step == SQLITE_ROW) {
+        
+    }
     sqlite3_finalize(res);
     sqlite3_close(db);
     return 0;
@@ -444,46 +464,50 @@ void accountManagement(){
     int day;
     float taux;
     int id_client;
-    int getIfExist = 0;
+    int getIfExist;
     int getIfExist2 = 0;
     char prenom[255];
     char nom[255];
     int id_account;
-    do {
+    
+    int end;
+    
+    end = 0;
+    while(!end)
+    {
+        int choice;
+        
+        /* affichage menu */
         printf("-----------------/ MY BANQUE - Account management /-----------------\n\n");
         printf("1 --- New account \n");
         printf("2 --- Consultation \n");
         printf("3 --- Close account \n");
         printf("6 --- Back to the main menu ---- \n\n");
         printf("Please choose : ");
-        scanf("%d", &choice);
         
+        choice = getchar();
+        
+        if(choice != '\n' && choice != EOF)
+        {
+            int d;
+            while((d = getchar()) != '\n' && d != EOF);
+        }
+    
         switch (choice) {
-            case 1:
-                do {
-                    printf("Please enter the identifiant : ");
-                    scanf("%d", &id);
-                    printf("Please enter the consumer ID : ");
-                    scanf("%d", &id_client);
-                    printf("Please enter the solde : ");
-                    scanf("%f", &solde);
-                    printf("Please enter the taux : ");
-                    scanf("%f", &taux);
-                    printf("Please enter the duration : ");
-                    scanf("%d", &day);
-                    getIfExist = checkIfClientExist(getConfig, db, id_client);
-                    if(getIfExist != 2) {
-                        printf("\n---------------------------------------\n");
-                        printf("\n/! ID does not exist into database.\n");
-                        printf("\n---------------------------------------\n");
-                    }
-                } while (getIfExist != 2);
-                printf("\n---------------------------------------\n");
-                printf("\nThe account has been created successfuly\n");
-                printf("\n---------------------------------------\n");
+            case '1':
+                printf("Please enter the identifiant : ");
+                scanf("%d", &id);
+                printf("Please enter the client ID : ");
+                scanf("%d", &id_client);
+                printf("Please enter the solde : ");
+                scanf("%f", &solde);
+                printf("Please enter the taux : ");
+                scanf("%f", &taux);
+                printf("Please enter the duration : ");
+                scanf("%d", &day);
                 newAccount(getConfig, db, id, solde, day, taux, id_client);
                 break;
-            case 2:
+            case '2':
                 printf("Please enter firstname : ");
                 scanf("%s", prenom);
                 printf("Please enter lastname : ");
@@ -492,37 +516,33 @@ void accountManagement(){
                 displayAccountByClientName(getConfig, db, prenom, nom);
                 printf("\n---------------------------------------\n");
                 break;
-            case 3:
-            
-                
-         
+            case '3':
                 printf("Enter the id of the account for delete : ");
                 scanf("%d", &id_account);
-               
-                    deleteAccount(getConfig, db, id_account);
-                    printf("\n---------------------------------------\n");
-                    printf("\nThe account has been deleted successfuly\n");
-                    printf("\n---------------------------------------\n");
-                   
-                
-               
+                deleteAccount(getConfig, db, id_account);
                 break;
-            case 6:
+            case '6':
                 menu();
                 break;
-                
             default:
-                break;
+               printf("==== /! Error choice ====\n");;
                 
         }
-    } while(choice != 6);
+    }
 }
+
 
 
 void menu() {
     
-    int choice;
-    do {
+    int end;
+    
+    end = 0;
+    while(!end)
+    {
+        int choice;
+        
+        /* affichage menu */
         printf("-----------------/ MY BANQUE /-----------------\n\n");
         printf("1 --- Customer Management \n");
         printf("2 --- Account management \n");
@@ -531,35 +551,42 @@ void menu() {
         printf("5 --- Administration\n");
         printf("6 --- Exit the program\n\n");
         printf("Please choose : ");
-        scanf("%d", &choice);
         
-        switch (choice) {
-            case 1:
-                
+        choice = getchar();
+
+        if(choice != '\n' && choice != EOF)
+        {
+            int d;
+            while((d = getchar()) != '\n' && d != EOF);
+        }
+        
+        switch(choice)
+        {
+            case '1':
                 break;
-            case 2:
+                
+            case '2':
                 accountManagement();
                 break;
-            case 3:
-                
+            case '3':
                 break;
-            case 4:
                 
+            case '4':
+            
                 break;
-            case 5:
+            case '5':
                 loginAdmin();
                 break;
-            case 6:
-                exit(0);
+            case '6':
+                end = 1;
                 break;
-                
             default:
-                break;
-                
+                printf("==== /! Error choice ====\n");;
         }
-    } while(choice != 6);
-    
+    }
+   
 }
+
 
 int main(int argc, char* argv[]) {
     sqlite3 *db;

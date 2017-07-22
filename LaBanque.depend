@@ -1,13 +1,5 @@
 # depslib dependency file v1.0
-1499193344 source:c:\users\sam\desktop\projetbanquec\labanque\main.c
-	<stdio.h>
-	<stdlib.h>
-	"sqlite3.h"
-
-1496956190 c:\users\sam\desktop\projetbanquec\labanque\sqlite3.h
-	<stdarg.h>
-
-1496956190 source:c:\users\sam\desktop\projetbanquec\labanque\sqlite3.c
+1500665788 source:c:\users\sam\desktop\projetbanquec\labanque\sqlite3.c
 	<vxWorks.h>
 	<pthread.h>
 	"mingw.h"
@@ -65,6 +57,55 @@
 	<ctype.h>
 	<math.h>
 
-1496956190 source:c:\users\sam\desktop\projetbanquec\labanque\sqlite3.h
+1500690156 source:c:\users\sam\desktop\projetbanquec\labanque\account.c
+	"global.h"
+
+1500690719 c:\users\sam\desktop\projetbanquec\labanque\global.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	<math.h>
+	"sqlite3.h"
+	"account.h"
+	"admin.h"
+
+1500665788 c:\users\sam\desktop\projetbanquec\labanque\sqlite3.h
 	<stdarg.h>
+
+1500689672 c:\users\sam\desktop\projetbanquec\labanque\account.h
+
+1500690646 c:\users\sam\desktop\projetbanquec\labanque\admin.h
+
+1500690875 source:c:\users\sam\desktop\projetbanquec\labanque\main.c
+	"headers/global.h"
+
+1500691418 c:\users\sam\desktop\projetbanquec\labanque\headers\global.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<ctype.h>
+	<math.h>
+	"sqlite3.h"
+	"account.h"
+	"admin.h"
+	"client.h"
+
+1500665788 c:\users\sam\desktop\projetbanquec\labanque\headers\sqlite3.h
+	<stdarg.h>
+
+1500689672 c:\users\sam\desktop\projetbanquec\labanque\headers\account.h
+
+1500690646 c:\users\sam\desktop\projetbanquec\labanque\headers\admin.h
+
+1500691118 source:c:\users\sam\desktop\projetbanquec\labanque\src\account.c
+	"../headers/global.h"
+
+1500691392 c:\users\sam\desktop\projetbanquec\labanque\headers\client.h
+
+1500691124 source:c:\users\sam\desktop\projetbanquec\labanque\src\admin.c
+	"../headers/global.h"
+
+1500691284 source:c:\users\sam\desktop\projetbanquec\labanque\src\client.c
+	"../headers/global.h"
 

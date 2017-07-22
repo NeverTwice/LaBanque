@@ -12,59 +12,52 @@ void admin(char *pseudo) {
  * @params
  */
 void adminMenu() {
-    int choice;
     int id;
-    int end = 0;
-
     system("cls");
-    while(!end) {
-        int choice;
+      char choice;
+        do {
+            printf("\n");
+            printf("\n\n1 --- Display the sum of the amounts for all accounts \n");
+            printf("2 --- View amount by account type \n");
+            printf("3 --- Display the total amount of interest and by type of account to be paid by the bank at the end of the year \n");
+            printf("4 --- Export application data \n");
+            printf("5 --- Import application data \n");
+            printf("6 --- Back to the main menu ---\n\n");
+            printf("\nPlease choose : ");
+            scanf("%s", &choice);
+            switch (choice) {
+                case '1':
+                    system("cls");
+                    printf("--------------- DISPLAY SUM OF AMOUNTS FOR ALL ACCOUNTS ------------------------\n");
+                    displaySumAmount();
+                    printf("\n---------------------------------------\n");
+                     break;
+                case '2':
+                    system("cls");
+                    printf("-----------------  VIEW AMOUNT BY ACCOUNT TYPE  ----------------------\n\n");
+                    printf("Please enter an account identifiant : ");
+                    scanf("%d", &id);
+                    displayAmountByAccountType(id);
+                    printf("\n---------------------------------------\n");
+                    break;
+                case '3':
 
-        printf("\n\n1 --- Display the sum of the amounts for all accounts \n");
-        printf("2 --- View amount by account type \n");
-        printf("3 --- Display the total amount of interest and by type of account to be paid by the bank at the end of the year \n");
-        printf("4 --- Export application data \n");
-        printf("5 --- Import application data \n");
-        printf("6 --- Back to the main menu ---\n\n");
-        printf("Please choose : ");
+                    break;
+                case '4':
 
-        choice = getchar();
+                    break;
+                case '5':
 
-        if(choice != '\n' && choice != EOF) {
-            int d;
-            while((d = getchar()) != '\n' && d != EOF);
+                    break;
+                case '6':
+                    menu();
+                    choice = 'q';
+                    break;
+                default:
+                    break;
+            }
         }
-
-        switch (choice) {
-            case '1':
-                printf("--------------- DISPLAY SUM OF AMOUNTS FOR ALL ACCOUNTS ------------------------\n");
-                displaySumAmount();
-                printf("\n---------------------------------------\n");
-                break;
-            case '2':
-                printf("-----------------  VIEW AMOUNT BY ACCOUNT TYPE  ----------------------\n\n");
-                printf("Please enter an account identifiant : ");
-                scanf("%d", &id);
-                displayAmountByAccountType(id);
-                printf("\n---------------------------------------\n");
-                break;
-            case '3':
-
-                break;
-            case '4':
-
-                break;
-            case '5':
-
-                break;
-            case '6':
-                menu();
-                break;
-            default:
-                break;
-        }
-
-    }
+        while (choice != 'q');
 }
 
 /**

@@ -101,52 +101,42 @@ int dumpDatabase() {
  * @params
  */
 void menu() {
-    int end = 0;
+        system("cls");
+        char choice;
+        do {
+            printf("\n");
+            printf("-----------------/ MY BANQUE /-----------------\n\n");
+            printf("1 --- Customer Management \n");
+            printf("2 --- Account management \n");
+            printf("3 --- Operations management \n");
+            printf("4 --- Historic \n");
+            printf("5 --- Administration\n");
+            printf("q --- Exit the program\n\n");
+            printf("\nPlease choose : ");
+            scanf("%s", &choice);
+             switch(choice) {
+                case '1':
+                    clientManagement();
+                    choice = 'q';
+                    break;
+                case '2':
+                    accountManagement();
+                    choice = 'q';
+                    break;
+                case '3':
+                    importDatabase();
+                    break;
+                case '4':
 
-    system("cls");
-    while(!end) {
-        int choice;
-
-        /* affichage menu */
-        printf("-----------------/ MY BANQUE /-----------------\n\n");
-        printf("1 --- Customer Management \n");
-        printf("2 --- Account management \n");
-        printf("3 --- Operations management \n");
-        printf("4 --- Historic \n");
-        printf("5 --- Administration\n");
-        printf("6 --- Exit the program\n\n");
-        printf("Please choose : ");
-
-        choice = getchar();
-
-        if(choice != '\n' && choice != EOF) {
-            int d;
-            while((d = getchar()) != '\n' && d != EOF);
+                    break;
+                case '5':
+                    loginAdmin();
+                     choice = 'q';
+                    break;
+                default:
+                    break;
+            }
         }
-
-        switch(choice) {
-            case '1':
-                clientManagement();
-                break;
-
-            case '2':
-                accountManagement();
-                break;
-            case '3':
-                dumpDatabase();
-                break;
-            case '4':
-
-                break;
-            case '5':
-                loginAdmin();
-                break;
-            case '6':
-                closeDatabase();
-                return(0);
-                break;
-            default:
-                break;
-        }
-    }
+        while (choice != 'q');
+        closeDatabase();
 }

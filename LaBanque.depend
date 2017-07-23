@@ -77,10 +77,10 @@
 
 1500690646 c:\users\sam\desktop\projetbanquec\labanque\admin.h
 
-1500690875 source:c:\users\sam\desktop\projetbanquec\labanque\main.c
+1500746757 source:c:\users\sam\desktop\projetbanquec\labanque\main.c
 	"headers/global.h"
 
-1500691418 c:\users\sam\desktop\projetbanquec\labanque\headers\global.h
+1500743706 c:\users\sam\desktop\projetbanquec\labanque\headers\global.h
 	<stdio.h>
 	<stdlib.h>
 	<string.h>
@@ -90,22 +90,28 @@
 	"account.h"
 	"admin.h"
 	"client.h"
+	"operation.h"
 
-1500665788 c:\users\sam\desktop\projetbanquec\labanque\headers\sqlite3.h
+1500725507 c:\users\sam\desktop\projetbanquec\labanque\headers\sqlite3.h
 	<stdarg.h>
 
-1500689672 c:\users\sam\desktop\projetbanquec\labanque\headers\account.h
+1500725507 c:\users\sam\desktop\projetbanquec\labanque\headers\account.h
 
-1500690646 c:\users\sam\desktop\projetbanquec\labanque\headers\admin.h
+1500725507 c:\users\sam\desktop\projetbanquec\labanque\headers\admin.h
 
-1500691118 source:c:\users\sam\desktop\projetbanquec\labanque\src\account.c
+1500745843 source:c:\users\sam\desktop\projetbanquec\labanque\src\account.c
 	"../headers/global.h"
 
-1500691392 c:\users\sam\desktop\projetbanquec\labanque\headers\client.h
+1500738141 c:\users\sam\desktop\projetbanquec\labanque\headers\client.h
 
-1500691124 source:c:\users\sam\desktop\projetbanquec\labanque\src\admin.c
+1500725513 source:c:\users\sam\desktop\projetbanquec\labanque\src\admin.c
 	"../headers/global.h"
 
-1500691284 source:c:\users\sam\desktop\projetbanquec\labanque\src\client.c
+1500746082 source:c:\users\sam\desktop\projetbanquec\labanque\src\client.c
+	"../headers/global.h"
+
+1500769225 c:\users\sam\desktop\projetbanquec\labanque\headers\operation.h
+
+1500746696 source:c:\users\sam\desktop\projetbanquec\labanque\src\operation.c
 	"../headers/global.h"
 

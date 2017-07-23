@@ -2,6 +2,7 @@
 
 int max_id_client; // Client counter
 int max_id_account; // Account counter
+int max_id_operation; // Account counter
 int rc; // Database
 sqlite3 *db; // Database
 
@@ -20,7 +21,7 @@ int main(int argc, char* argv[]) {
     openDatabase();
 
     sqlite3_stmt *res;
-    char *sql = "SELECT max(client.id), max(compte.id) from client, compte";
+    char *sql = "SELECT max(client.id), max(compte.id), max(operations.id) from client, compte, operations";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
 
@@ -31,6 +32,7 @@ int main(int argc, char* argv[]) {
     if (step == SQLITE_ROW) {
         max_id_client = sqlite3_column_int(res, 0); // Gets last id client
         max_id_account = sqlite3_column_int(res, 1); // Gets last id account
+        max_id_operation = sqlite3_column_int(res, 2); // Gets last id operation
     }
     menu();
 }
@@ -117,26 +119,25 @@ void menu() {
              switch(choice) {
                 case '1':
                     clientManagement();
-                    choice = 'q';
                     break;
                 case '2':
                     accountManagement();
-                    choice = 'q';
                     break;
                 case '3':
-                    importDatabase();
+                    operationManagement();
                     break;
                 case '4':
 
                     break;
                 case '5':
                     loginAdmin();
-                     choice = 'q';
                     break;
+                case 'q':
+                    closeDatabase();
+                    exit(0);
                 default:
                     break;
             }
         }
-        while (choice != 'q');
-        closeDatabase();
+        while (choice != '1' && choice != '2' && choice != '3' && choice != '4' && choice != '5' && choice != 'q');
 }

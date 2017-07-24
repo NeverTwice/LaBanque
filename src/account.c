@@ -25,16 +25,20 @@ void accountManagement(){
             scanf("%s", &choice);
             switch (choice) {
                 case '1':
-                    id = max_id_account+1; // Last id account added +1
-                    printf("Please enter the client ID : ");
-                    scanf("%d", &id_client);
-                    printf("Please enter the solde : ");
-                    scanf("%f", &solde);
-                    printf("Please enter the taux : ");
-                    scanf("%f", &taux);
-                    printf("Please enter the duration : ");
-                    scanf("%d", &day);
-                    newAccount(id, solde, day, taux, id_client);
+                    do {
+                        printf("Please enter the client ID : ");
+                        scanf("%d", &id_client);
+                        printf("Please enter the solde : ");
+                        scanf("%f", &solde);
+                        printf("Please enter the taux : ");
+                        scanf("%f", &taux);
+                        printf("Please enter the duration : ");
+                        scanf("%d", &day);
+                        if(checkIfClientExist(id_client) == -1) {
+                            printf("\nError : client does not exist.\n\n");
+                        }
+                    } while(checkIfClientExist(id_client) == -1);
+                     newAccount(solde, day, taux, id_client);
                     break;
                 case '2':
                     printf("Please enter firstname : ");
@@ -46,8 +50,13 @@ void accountManagement(){
                     printf("\n---------------------------------------\n");
                     break;
                 case '3':
-                    printf("Enter the id of the account for delete : ");
-                    scanf("%d", &id_account);
+                    do {
+                        printf("Enter the id of the account for delete : ");
+                        scanf("%d", &id_account);
+                        if(checkIfAccoutExist(id_account) == -1) {
+                            printf("Error : client does not exist.\n");
+                        }
+                    } while(checkIfAccoutExist(id_account) == -1);
                     deleteAccount(id_account);
                     break;
                 case '6':
@@ -63,18 +72,17 @@ void accountManagement(){
         while (choice != 'q');
 }
 
+
 /**
  * @params int id, float solde, int day, float taux, int id_client
  */
-int newAccount(int id, float solde, int day, float taux, int id_client) {
+int newAccount(float solde, int day, float taux, int id_client) {
     sqlite3_stmt *res;
 
-    char *sql = "INSERT INTO compte(id, solde, duree_minimale, taux, id_client) VALUES(@id, @solde,@duree_minimale,@taux,@id_client)";
+    char *sql = "INSERT INTO compte(solde, duree_minimale, taux, id_client) VALUES(@solde,@duree_minimale,@taux,@id_client)";
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
 
     if (rc == SQLITE_OK) {
-        int id_default = sqlite3_bind_parameter_index(res, "@id");
-        sqlite3_bind_int(res, id_default, id);
         int id_default_2 = sqlite3_bind_parameter_index(res, "@solde");
         sqlite3_bind_int(res, id_default_2, solde);
         int id_default_3 = sqlite3_bind_parameter_index(res, "@duree_minimale");
@@ -118,7 +126,7 @@ int deleteAccount(int id_account) {
 
     int step = sqlite3_step(res);
     if(step == SQLITE_DONE) {
-        printf("\n\n Successfull new entry \n\n");
+        printf("\n\n Successfull deleted \n\n");
         system("pause");
     } else {
         printf("ERROR inserting data: %s\n", sqlite3_errmsg(db));

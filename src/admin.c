@@ -8,11 +8,13 @@ void admin(char *pseudo) {
     adminMenu();
 }
 
+
 /**
  * @params
  */
 void adminMenu() {
     int id;
+    char fileName[255];
     system("cls");
       char choice;
         do {
@@ -46,10 +48,20 @@ void adminMenu() {
                     displayAmountInterests();
                     break;
                 case '4':
-
+                    system("cls");
+                    printf("-----------------  DUMP DATABASE  ----------------------\n\n");
+                    printf("Please enter the filename : ");
+                    scanf("%s", fileName);
+                    dumpDatabase(fileName);
+                    printf("\n---------------------------------------\n");
                     break;
                 case '5':
-
+                    system("cls");
+                    printf("-----------------  IMPORT DATABASE  ----------------------\n\n");
+                    printf("Please enter the filename : ");
+                    scanf("%s", fileName);
+                    importDatabase(fileName);
+                    printf("\n---------------------------------------\n");
                     break;
                 case '6':
                     menu();
@@ -61,7 +73,6 @@ void adminMenu() {
         }
         while (choice != 'q');
 }
-
 /**
  * @params
  */
@@ -69,7 +80,7 @@ void loginAdmin() {
     char name[255];
     char password[255];
     int cptCo = 0;
-
+    system("cls");
     printf("\n-----------------/ MY BANQUE : ADMIN /-----------------\n\n");
     printf("If you want to enter into the administration\n please, enter your name and your password\n\n");
     while(1) {
@@ -276,5 +287,250 @@ int displayAmountInterests() {
         }
         sqlite3_finalize(res);
     }
+    return 0;
+
+/**
+ * @params
+ */
+ // HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ///
+int dump_db (sqlite3 *db, char *filename)
+{
+    FILE *fp = NULL;
+
+    sqlite3_stmt *stmt_table = NULL;
+    sqlite3_stmt *stmt_data = NULL;
+
+    const char *table_name = NULL;
+    const char *data = NULL;
+    int col_cnt = 0;
+    int col_cnt_2 = 0;
+
+    int ret = 0;
+    int index = 0;
+    int index_2 = 0;
+    char cmd[4096] = {0};
+
+
+    fp = fopen (filename, "w");
+    if (!fp)
+        return -1;
+
+    ret = sqlite3_prepare_v2 (db, "SELECT sql,tbl_name FROM sqlite_master WHERE type = 'table';",
+                              -1, &stmt_table, NULL);
+    if (ret != SQLITE_OK) {
+            if (stmt_data) {
+                sqlite3_finalize (stmt_data);
+            }
+            if (stmt_table) {
+                sqlite3_finalize (stmt_table);
+            }
+            if (fp) {
+                fclose (fp);
+            }
+    }
+
+
+    fprintf (fp, "PRAGMA foreign_keys=OFF;\nBEGIN TRANSACTION;\n");
+
+    ret = sqlite3_step (stmt_table);
+    while (ret == SQLITE_ROW)
+    {
+        data = sqlite3_column_text (stmt_table, 0);
+        table_name = sqlite3_column_text (stmt_table, 1);
+        if (!data || !table_name)
+        {
+            ret = -1;
+             if (stmt_data) {
+                sqlite3_finalize (stmt_data);
+            }
+            if (stmt_table) {
+                sqlite3_finalize (stmt_table);
+            }
+            if (fp) {
+                fclose (fp);
+            }
+        }
+
+        /* CREATE TABLE statements */
+        if(strcmp(table_name, "sqlite_sequence") == 0) {
+            fprintf (fp, "DELETE FROM '%s';\n", table_name);
+            fprintf (fp, "", data);
+        } else {
+            fprintf (fp, "DROP TABLE '%s';\n", table_name);
+            fprintf (fp, "%s;\n", data);
+        }
+
+        /* fetch table data */
+        sprintf (cmd, "SELECT * from %s;",table_name);
+
+        ret = sqlite3_prepare_v2 (db, cmd, -1, &stmt_data, NULL);
+        if (ret != SQLITE_OK) {
+             if (stmt_data) {
+                sqlite3_finalize (stmt_data);
+            }
+            if (stmt_table) {
+                sqlite3_finalize (stmt_table);
+            }
+            if (fp) {
+                fclose (fp);
+            }
+        }
+
+
+        ret = sqlite3_step (stmt_data);
+        while (ret == SQLITE_ROW)
+        {
+            sprintf (cmd, "INSERT INTO \"%s\" VALUES(",table_name);
+            col_cnt = sqlite3_column_count(stmt_data);
+            for (index = 0; index < col_cnt; index++)
+            {
+                if (index)
+                    strcat (cmd,",");
+                data = sqlite3_column_text (stmt_data, index);
+
+                if (data)
+                {
+                    if (sqlite3_column_type(stmt_data, index) == SQLITE_TEXT)
+                    {
+                        strcat (cmd, "'");
+                        strcat (cmd, data);
+                        strcat (cmd, "'");
+                    }
+                    else
+                    {
+                        strcat (cmd, data);
+                    }
+                }
+                else
+                    strcat (cmd, "NULL");
+            }
+            fprintf (fp, "%s);\n", cmd);
+            ret = sqlite3_step (stmt_data);
+        }
+
+        ret = sqlite3_step (stmt_table);
+    }
+
+    /* Triggers */
+    if (stmt_table)
+        sqlite3_finalize (stmt_table);
+
+    ret = sqlite3_prepare_v2 (db, "SELECT sql FROM sqlite_master WHERE type = 'trigger';",
+                              -1, &stmt_table, NULL);
+
+    if (ret != SQLITE_OK) {
+            if (stmt_data) {
+                sqlite3_finalize (stmt_data);
+            }
+            if (stmt_table) {
+                sqlite3_finalize (stmt_table);
+            }
+            if (fp) {
+                fclose (fp);
+            }
+    }
+
+
+    ret = sqlite3_step (stmt_table);
+    while (ret == SQLITE_ROW)
+    {
+        data = sqlite3_column_text (stmt_table, 0);
+        if (!data)
+        {
+            ret = -1;
+            if (stmt_data) {
+                sqlite3_finalize (stmt_data);
+            }
+            if (stmt_table) {
+                sqlite3_finalize (stmt_table);
+            }
+            if (fp) {
+                fclose (fp);
+            }
+        }
+
+        /* CREATE TABLE statements */
+        fprintf (fp, "%s;\n", data);
+
+        ret = sqlite3_step (stmt_table);
+    }
+
+    fprintf (fp, "COMMIT;\n");
+
+    if (stmt_data) {
+        sqlite3_finalize (stmt_data);
+    }
+    if (stmt_table) {
+        sqlite3_finalize (stmt_table);
+    }
+    if (fp) {
+        fclose (fp);
+    }
+
+    return ret;
+}
+
+int dumpDatabase(char *nameFile) {
+    int ret = 0;
+    ret = sqlite3_open_v2(config_default.db_name, & db,
+        SQLITE_OPEN_READWRITE, NULL);
+    if (ret != SQLITE_OK || !db) {
+        return -1;
+    }
+    dump_db(db, nameFile);
+    if (db) {
+        ret = sqlite3_close_v2(&db);
+    }
+
+    return 0;
+}
+
+int importDatabase(char *nameFile) {
+    int rc;
+    char myarr[2000];
+    char ch;
+    int n = 0, i = 0, z;
+    FILE * f;
+    char c;
+    f = fopen(nameFile, "r");
+
+    while ((ch = fgetc(f)) != EOF) {
+        myarr[i] = ch;
+        i++;
+    }
+    fclose(f);
+
+    printf("%s", myarr);
+
+    char * err_msg = 0;
+
+    rc = sqlite3_open(config_default.db_name, & db);
+
+    if (rc != SQLITE_OK) {
+
+        fprintf(stderr, "Cannot open database: %s\n", sqlite3_errmsg(db));
+        sqlite3_close(db);
+
+        return 1;
+    }
+
+    char * sql[2000];
+
+    strcpy(sql, myarr);
+
+    rc = sqlite3_exec(db, sql, 0, 0, & err_msg);
+
+    if (rc != SQLITE_OK) {
+
+        fprintf(stderr, "SQL error: %s\n", err_msg);
+
+        sqlite3_free(err_msg);
+        sqlite3_close(db);
+
+        return 1;
+    }
+
+    sqlite3_close(db);
+
     return 0;
 }

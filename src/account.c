@@ -34,10 +34,10 @@ void accountManagement(){
                         scanf("%f", &taux);
                         printf("Please enter the duration : ");
                         scanf("%d", &day);
-                        if(checkIfClientExist(id_client) == -1) {
+                        if(checkIfClientExist(id_client, NULL, NULL) == -1) {
                             printf("\nError : client does not exist.\n\n");
                         }
-                    } while(checkIfClientExist(id_client) == -1);
+                    } while(checkIfClientExist(id_client, NULL, NULL) == -1);
                      newAccount(solde, day, taux, id_client);
                     break;
                 case '2':
@@ -53,10 +53,10 @@ void accountManagement(){
                     do {
                         printf("Enter the id of the account for delete : ");
                         scanf("%d", &id_account);
-                        if(checkIfAccoutExist(id_account) == -1) {
+                        if(checkIfAccountExist(id_account) == -1) {
                             printf("Error : client does not exist.\n");
                         }
-                    } while(checkIfAccoutExist(id_account) == -1);
+                    } while(checkIfAccountExist(id_account) == -1);
                     deleteAccount(id_account);
                     break;
                 case '6':

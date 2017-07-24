@@ -288,11 +288,11 @@ int displayAmountInterests() {
         sqlite3_finalize(res);
     }
     return 0;
+}
 
 /**
  * @params
  */
- // HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ///
 int dump_db (sqlite3 *db, char *filename)
 {
     FILE *fp = NULL;

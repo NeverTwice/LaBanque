@@ -130,7 +130,7 @@ int deleteAccount(int id_account) {
 /**
  * @params int id_account
  */
-int checkIfAccoutExist(int id_account) {
+int checkIfAccountExist(int id_account) {
     sqlite3_stmt *res;
     int i = 0;
 
@@ -146,7 +146,7 @@ int checkIfAccoutExist(int id_account) {
     int step = sqlite3_step(res);
 
     if(step == SQLITE_DONE) {
-        return 2;
+        return -1;
     }
 
     if (step == SQLITE_ROW) {

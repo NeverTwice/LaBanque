@@ -43,7 +43,9 @@ void adminMenu() {
                     printf("\n---------------------------------------\n");
                     break;
                 case '3':
-
+                    system("cls");
+                    printf("--------------- DISPLAY SUM OF AMOUNTS FOR ALL ACCOUNTS ------------------------\n");
+                    displayAmountInterests();
                     break;
                 case '4':
                     system("cls");
@@ -233,7 +235,59 @@ int displayAmountByAccountType(int id) {
     return 0;
 }
 
+/**
+ * @params
+ */
+int displayAmountInterests() {
+    sqlite3_stmt *res;
+    int i, y;
+    int nb_taux = 0;
+    float montant;
+    float taux;
+    float *stats = malloc(sizeof(float));
+    float *tab_taux = malloc(sizeof(float));
+    if(stats != NULL && tab_taux != NULL) {
+        char *sql = "SELECT ROUND(operations.montant, 2), ROUND(compte.taux,2) FROM operations, compte WHERE operations.montant > 0 AND operations.id_comptedest = compte.id ORDER BY compte.taux";
 
+        rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
+
+        if (rc != SQLITE_OK) {
+            fprintf(stderr, "Failed to execute statement: %s\n", sqlite3_errmsg(db));
+        }
+
+        int step = sqlite3_step(res);
+        while(step == SQLITE_ROW) {
+            montant = sqlite3_column_double(res, 0);
+            if(taux != sqlite3_column_double(res, 1)) {
+                nb_taux++;
+            }
+            taux = sqlite3_column_double(res, 1);
+
+
+            float *tmp = (float*)realloc(stats, sizeof(float) * nb_taux);
+            if(tmp != NULL) {
+               stats = tmp;
+            }
+
+            float *tmp_1 = (float*)realloc(tab_taux, sizeof(float) * nb_taux);
+            if(tmp_1 != NULL) {
+               tab_taux = tmp_1;
+            }
+
+            if(taux != 0) {
+                stats[nb_taux-1] += montant-((montant-((taux/100)*montant)));
+                tab_taux[nb_taux-1] = taux;
+            }
+
+            step = sqlite3_step(res);
+        }
+
+        for(y = 0; y < nb_taux; y++) {
+            printf("\nTaux : %.2f - Montant a payer : %.2f %s", tab_taux[y], stats[y], config_default.devise);
+        }
+        sqlite3_finalize(res);
+    }
+    return 0;
 
 /**
  * @params
@@ -479,5 +533,4 @@ int importDatabase(char *nameFile) {
     sqlite3_close(db);
 
     return 0;
-
 }

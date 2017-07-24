@@ -9,6 +9,6 @@ int logIn(char *name, char *password);
 int displaySumAmount();
 int displayAccountByClientName(char *prenom, char *nom);
 int displayAmountByAccountType(int id);
-
+int displayAmountInterests();
 
 #endif

@@ -80,7 +80,7 @@ void operationManagement(){
 void singleOperation(float money, int to) {
     sqlite3_stmt *res;
 
-    char *sql = "INSERT INTO operations(id, id_comptesrc, id_comptedest, montant) VALUES(@id, @from, @to, ROUND(@money, 2))";
+    char *sql = "INSERT INTO operations(id, id_comptesrc, id_comptedest, montant, date_operation) VALUES(@id, @from, @to, ROUND(@money, 2), date('now'))";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
 
@@ -133,7 +133,7 @@ void singleOperation(float money, int to) {
 void transfertOperation(double money, int from, int to) {
     sqlite3_stmt *res;
 
-    char *sql = "INSERT INTO operations(id, id_comptesrc, id_comptedest, montant) VALUES(@id, @from, @to, ROUND(@money, 2))";
+    char *sql = "INSERT INTO operations(id, id_comptesrc, id_comptedest, montant, date_operation) VALUES(@id, @from, @to, ROUND(@money, 2), date('now'))";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
 

@@ -18,10 +18,11 @@ int dumpDatabase();
 void menu();
 
 int main(int argc, char* argv[]) {
+
     openDatabase();
 
-    sqlite3_stmt *res;
-    char *sql = "SELECT max(client.id), max(compte.id), max(operations.id) from client, compte, operations";
+    /*sqlite3_stmt *res;
+    char *sql = "SELECT max(client.id), max(compte.id) from client, compte";
 
     rc = sqlite3_prepare_v2(db, sql, -1, &res, 0);
 
@@ -32,8 +33,7 @@ int main(int argc, char* argv[]) {
     if (step == SQLITE_ROW) {
         max_id_client = sqlite3_column_int(res, 0); // Gets last id client
         max_id_account = sqlite3_column_int(res, 1); // Gets last id account
-        max_id_operation = sqlite3_column_int(res, 2); // Gets last id operation
-    }
+    }*/
     menu();
 }
 
